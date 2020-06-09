@@ -83,7 +83,6 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
     private Drawable mLanderImage;
     private Drawable mCrashedImage;
     private Drawable mFireImage;
-
     private Drawable landerImage;
 
     class LunarThread extends Thread {
@@ -130,8 +129,6 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             // load background image as a Bitmap instead of a Drawable b/c
             // we don't need to transform it and it's faster to draw this way
             mBackgroundImage = BitmapFactory.decodeResource(res, R.drawable.earthrise);
-
-            doStart();
         }
 
         public void init() {
@@ -172,6 +169,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
 
         public void doStart() {
             synchronized (mSurfaceHolder) {
+                /*
                 int speedInit = 20;
 
                 mX = mCanvasWidth / 2;
@@ -179,11 +177,13 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
 
                 mDY = Math.random() * -speedInit;
                 mDX = Math.random() * 2 * speedInit - speedInit;
+                */
 
                 if(!isStart) {
-                    this.pause();
-                    isStart = true;
+                    Log.println(Log.ASSERT, "doStart!!", "pause");
+                    pause();
                 }
+                isStart = true;
             }
         }
 
@@ -202,6 +202,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
         public void unpause() {
             // Move the real time clock up to now
             synchronized (mSurfaceHolder) {
+                setRunning(true);
             }
         }
 
@@ -224,6 +225,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
                 try {
                     c = mSurfaceHolder.lockCanvas(null);
                     synchronized (mSurfaceHolder) {
+                        doStart();
                         doDraw(c);
                     }
                 } finally {
@@ -269,21 +271,14 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
         private void doDraw(Canvas canvas) {
             canvas.drawBitmap(mBackgroundImage, 0, 0, null);
 
-            int yTop = mCanvasHeight - ((int) mY + mLanderHeight / 2);
-            int xLeft = (int) mX - mLanderWidth / 2;
+            //int yTop = mCanvasHeight - ((int) mY + mLanderHeight / 2);
+            //int xLeft = (int) mX - mLanderWidth / 2;
 
             Drawable tempImage = landerImage;
             tempImage.setBounds(x, y = y + speed, x + 100, y + 100);
 
-            double speed = Math.hypot(mDX, mDY);
-
-            // bar에 우주선이 닿으면
-            if( y > mCanvasHeight - 230) {
-                landerImage = mCrashedImage;
-                isStart = false;
-                Log.println(Log.ASSERT, "key!!", "collision ");
-            }
-
+            Log.println(Log.ASSERT, "doDraw!!", String.valueOf(x) + " " + String.valueOf(x));
+            //double speed = Math.hypot(mDX, mDY);
 
             if(bar_flag) {
                 canvas.drawLine(bar_x1 = bar_x1 + bar_v, mCanvasHeight - 150,
@@ -303,6 +298,19 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
 
             else if(bar_x1 == 0) {
                 bar_flag = true;
+            }
+
+            // bar에 우주선이 닿으면 성공
+            if( (y > mCanvasHeight - 235) && (x > bar_x1) && (x < bar_x2)) {
+                isStart = false;
+                landerImage = mLanderImage;
+                Log.println(Log.ASSERT, "doDraw!!", "win ");
+            }
+
+            else if ((y > mCanvasHeight - 235)) {
+                isStart = false;
+                landerImage = mCrashedImage;
+                Log.println(Log.ASSERT, "doDraw!!", "Game over");
             }
 
             tempImage.draw(canvas);

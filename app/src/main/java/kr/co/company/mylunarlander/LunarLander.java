@@ -70,6 +70,7 @@ public class LunarLander extends AppCompatActivity {
                                 // 게임 다시 시작
                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                 startActivity(intent);
+                                //mLunarThread.unpause();
                                 Toast.makeText(getApplication(),"HOME",Toast.LENGTH_SHORT).show();
                                 break;
                             default:
@@ -93,7 +94,7 @@ public class LunarLander extends AppCompatActivity {
             // 100초가 될 동안
             while (count < 100) {
                 try{
-                    Thread.sleep(1000); //0.1초
+                    Thread.sleep(100); //0.1초
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -102,7 +103,7 @@ public class LunarLander extends AppCompatActivity {
             }
             return count;
         }
-        
+
         protected void onProgressUpdate(Integer... integers) {
             mProgress.setProgress(count);
         }
