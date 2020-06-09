@@ -56,34 +56,36 @@ import android.widget.Toast;
 class LunarView extends SurfaceView implements SurfaceHolder.Callback{
     public Handler mHandler;
 
-    private int x= 550;
-    private int y=0;
-    private int speed = 2;
+    public int x= 550;
+    public int y=0;
+    public int speed = 2;
 
-    private boolean isStart;
+    public boolean isStart;
+    public int winFlag;
 
-    private double mX;
-    private double mY;
+    public double mX;
+    public double mY;
 
-    private double mDX;
-    private double mDY;
+    public double mDX;
+    public double mDY;
 
-    private int mLanderWidth;
-    private int mLanderHeight;
+    public int mLanderWidth;
+    public int mLanderHeight;
 
-    int bar_x1 = 0;
-    int bar_x2 = 200;
-    int bar_v = 5;
+    public int bar_x1 = 0;
+    public int bar_x2 = 200;
+    public int bar_v = 5;
 
-    boolean bar_flag = true;
+    public boolean barFlag;
 
-    private Paint linePaint;
+
+    public Paint linePaint;
 
     /** What to draw for the Lander in its normal state */
-    private Drawable mLanderImage;
-    private Drawable mCrashedImage;
-    private Drawable mFireImage;
-    private Drawable landerImage;
+    public Drawable mLanderImage;
+    public Drawable mCrashedImage;
+    public Drawable mFireImage;
+    public Drawable landerImage;
 
     class LunarThread extends Thread {
         /** The drawable to use as the background of the animation canvas */
@@ -122,7 +124,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             mCrashedImage = context.getResources().getDrawable(
                     R.drawable.lander_crashed);
 
-            init();
+            Init();
 
             Resources res = context.getResources();
 
@@ -131,8 +133,10 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             mBackgroundImage = BitmapFactory.decodeResource(res, R.drawable.earthrise);
         }
 
-        public void init() {
+        public void Init() {
             isStart = true;
+            winFlag = 0;
+            barFlag = true;
 
             mLanderWidth = mLanderImage.getIntrinsicWidth();
             mLanderHeight = mLanderImage.getIntrinsicHeight();
@@ -183,7 +187,6 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
                     Log.println(Log.ASSERT, "doStart!!", "pause");
                     pause();
                 }
-                isStart = true;
             }
         }
 
@@ -280,7 +283,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             Log.println(Log.ASSERT, "doDraw!!", String.valueOf(x) + " " + String.valueOf(x));
             //double speed = Math.hypot(mDX, mDY);
 
-            if(bar_flag) {
+            if(barFlag) {
                 canvas.drawLine(bar_x1 = bar_x1 + bar_v, mCanvasHeight - 150,
                         bar_x2 = bar_x2 + bar_v, mCanvasHeight - 150,
                         linePaint);
@@ -293,21 +296,23 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             }
 
             if(bar_x2 == mCanvasWidth) {
-                bar_flag = false;
+                barFlag = false;
             }
 
             else if(bar_x1 == 0) {
-                bar_flag = true;
+                barFlag = true;
             }
 
             // bar에 우주선이 닿으면 성공
-            if( (y > mCanvasHeight - 235) && (x > bar_x1) && (x < bar_x2)) {
+            if( (y > mCanvasHeight - 240) && (x > bar_x1) && (x < bar_x2)) {
+                winFlag = 1;
                 isStart = false;
                 landerImage = mLanderImage;
                 Log.println(Log.ASSERT, "doDraw!!", "win ");
             }
 
             else if ((y > mCanvasHeight - 235)) {
+                winFlag = 2;
                 isStart = false;
                 landerImage = mCrashedImage;
                 Log.println(Log.ASSERT, "doDraw!!", "Game over");
@@ -316,38 +321,6 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             tempImage.draw(canvas);
         }
 	}
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_DPAD_UP:
-                landerImage = mFireImage;
-                y = y - 10;
-                speed = speed - 1;
-                Log.println(Log.ASSERT, "key!!", "pressed up ");
-                return true;
-
-            case KeyEvent.KEYCODE_DPAD_LEFT:
-                landerImage = mFireImage;
-                x = x - 5;
-                Log.println(Log.ASSERT, "key!!", "pressed left ");
-                return true;
-
-            case KeyEvent.KEYCODE_DPAD_RIGHT:
-                landerImage = mFireImage;
-                x = x + 5;
-                Log.println(Log.ASSERT, "key!!", "pressed right ");
-                return true;
-
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                landerImage = mLanderImage;
-                speed = speed + 1;
-                Log.println(Log.ASSERT, "key!!", "pressed down ");
-
-            default:
-                return false;
-        }
-    }
 
     /** Handle to the application context, used to e.g. fetch Drawables. */
     private Context mContext;

@@ -1,6 +1,7 @@
 package kr.co.company.mylunarlander;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -23,12 +24,15 @@ public class LunarLander extends AppCompatActivity {
 
     /** A handle to the View in which the game is running. */
     private LunarView mLunarView;
+    public Drawable landerImage, mLanderImage, mCrashedImage, mFireImage;
+    public int x, y;
 
     private ProgressBar mProgress;
     private int mProgressStatus = 0;
     private int count = 0;
+    private int endFlag, flag;
+    private TextView text, game_status;
 
-    private TextView text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +50,7 @@ public class LunarLander extends AppCompatActivity {
         new CounterTask().execute(0);
 
         text = findViewById(R.id.text);
+        game_status = findViewById(R.id.game_status);
 
         // 메뉴버튼에 클릭 리스너 등록
         Button menu_btn = findViewById(R.id.menu_btn);
@@ -85,6 +90,49 @@ public class LunarLander extends AppCompatActivity {
         });
     }
 
+    public void checkGame() {
+        if(mLunarView.winFlag == 1 && (endFlag == 1)) {
+            game_status.setText("You Win!");
+        }
+
+        else if((mLunarView.winFlag==2) && (endFlag == 1)) {
+            game_status.setText("GAME OVER!");
+        }
+        Log.println(Log.ASSERT, "checkGame", "endGame(2 : timeover)" + endFlag);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_UP:
+                mLunarView.landerImage = mLunarView.mFireImage;
+                mLunarView.y = mLunarView.y - 10;
+                mLunarView.speed = mLunarView.speed - 1;
+                Log.println(Log.ASSERT, "key!!", "pressed up ");
+                return true;
+
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                mLunarView.landerImage = mLunarView.mFireImage;
+                mLunarView.x = mLunarView.x - 5;
+                Log.println(Log.ASSERT, "key!!", "pressed left ");
+                return true;
+
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                mLunarView.landerImage = mLunarView.mFireImage;
+                mLunarView.x = mLunarView.x + 5;
+                Log.println(Log.ASSERT, "key!!", "pressed right ");
+                return true;
+
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                mLunarView.landerImage = mLunarView.mLanderImage;
+                mLunarView.speed = mLunarView.speed + 1;
+                Log.println(Log.ASSERT, "key!!", "pressed down ");
+
+            default:
+                return false;
+        }
+    }
+
     class CounterTask extends AsyncTask<Integer, Integer, Integer> {
         protected void onPreExecute() {
         }
@@ -95,6 +143,7 @@ public class LunarLander extends AppCompatActivity {
             while (count < 100) {
                 try{
                     Thread.sleep(100); //0.1초
+                    endFlag = 1;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -105,6 +154,7 @@ public class LunarLander extends AppCompatActivity {
         }
 
         protected void onProgressUpdate(Integer... integers) {
+            checkGame();
             mProgress.setProgress(count);
         }
 
@@ -113,7 +163,7 @@ public class LunarLander extends AppCompatActivity {
                 mProgress.setProgress(count);
             }
             else {
-                text.setText("GAME OVER");
+                game_status.setText("TIME OVER!");
                 onPause();
             }
         }
