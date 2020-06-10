@@ -14,15 +14,13 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        //startService(new Intent("kr.co.company.service.test"));
-
         // Start 버튼에 클릭 리스너 등록
         Button start_btn = findViewById(R.id.button);
         start_btn.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                // Start 버튼 클릭 시작
+                // Start 버튼 클릭 게임 시작
                 Intent intent = new Intent(getApplicationContext(), LunarLander.class);
                 startActivity(intent);
             }

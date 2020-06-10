@@ -258,6 +258,9 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
 
             Drawable tempImage = landerImage;
 
+            Log.println(Log.ASSERT, "doDraw!! speed", String.valueOf(speed));
+
+
             // 로켓 이미지 그려주기
             tempImage.setBounds(x, y = y + speed, x + 100, y + 100);
 
