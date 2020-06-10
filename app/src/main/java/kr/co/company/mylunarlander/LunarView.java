@@ -63,12 +63,6 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
     public boolean isStart;
     public int winFlag;
 
-    public double mX;
-    public double mY;
-
-    public double mDX;
-    public double mDY;
-
     public int mLanderWidth;
     public int mLanderHeight;
 
@@ -77,7 +71,6 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
     public int bar_v = 5;
 
     public boolean barFlag;
-
 
     public Paint linePaint;
 
@@ -117,6 +110,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             mHandler = handler;
             mContext = context;
 
+            // 사용할 이미지들 정의
             mLanderImage = context.getResources().getDrawable(
                     R.drawable.lander_plain);
             mFireImage = context.getResources().getDrawable(
@@ -133,6 +127,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             mBackgroundImage = BitmapFactory.decodeResource(res, R.drawable.earthrise);
         }
 
+        // 필드 값 초기화 메소드
         public void Init() {
             isStart = true;
             winFlag = 0;
@@ -146,11 +141,6 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             linePaint.setStrokeWidth(30f);
             linePaint.setStyle(Paint.Style.FILL);
             linePaint.setColor(Color.rgb(115, 111, 100));
-
-            mX = mLanderWidth;
-            mY = mLanderHeight * 2;
-            mDX = 0;
-            mDY = 0;
 
             landerImage = mLanderImage;
         }
@@ -173,18 +163,10 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
 
         public void doStart() {
             synchronized (mSurfaceHolder) {
-                /*
-                int speedInit = 20;
-
-                mX = mCanvasWidth / 2;
-                mY = mCanvasHeight - mLanderHeight / 2;
-
-                mDY = Math.random() * -speedInit;
-                mDX = Math.random() * 2 * speedInit - speedInit;
-                */
-
+                // 게임이 끝나면
                 if(!isStart) {
                     Log.println(Log.ASSERT, "doStart!!", "pause");
+                    // 정지
                     pause();
                 }
             }
@@ -195,7 +177,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
          */
         public void pause() {
             synchronized (mSurfaceHolder) {
-                setRunning(false);
+                setRunning(false); // setRunning에  false를 주어 스레드 정지
             }
         }
 
@@ -228,7 +210,7 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
                 try {
                     c = mSurfaceHolder.lockCanvas(null);
                     synchronized (mSurfaceHolder) {
-                        doStart();
+                        doStart(); // doStart() 를 호출
                         doDraw(c);
                     }
                 } finally {
@@ -274,27 +256,28 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
         private void doDraw(Canvas canvas) {
             canvas.drawBitmap(mBackgroundImage, 0, 0, null);
 
-            //int yTop = mCanvasHeight - ((int) mY + mLanderHeight / 2);
-            //int xLeft = (int) mX - mLanderWidth / 2;
-
             Drawable tempImage = landerImage;
+
+            // 로켓 이미지 그려주기
             tempImage.setBounds(x, y = y + speed, x + 100, y + 100);
 
             Log.println(Log.ASSERT, "doDraw!!", String.valueOf(x) + " " + String.valueOf(x));
-            //double speed = Math.hypot(mDX, mDY);
 
+            // bar 오른쪽으로 움직이기
             if(barFlag) {
                 canvas.drawLine(bar_x1 = bar_x1 + bar_v, mCanvasHeight - 150,
                         bar_x2 = bar_x2 + bar_v, mCanvasHeight - 150,
                         linePaint);
             }
 
+            // bar 왼쪽으로 움직이기
             else {
                 canvas.drawLine(bar_x1 = bar_x1 - bar_v, mCanvasHeight - 150,
                         bar_x2 = bar_x2 - bar_v, mCanvasHeight - 150,
                         linePaint);
             }
 
+            // bar의 stopX좌표가 캔버스의 폭과 같아지면 barFlag를 false로
             if(bar_x2 == mCanvasWidth) {
                 barFlag = false;
             }
@@ -307,17 +290,19 @@ class LunarView extends SurfaceView implements SurfaceHolder.Callback{
             if( (y > mCanvasHeight - 240) && (x > bar_x1) && (x < bar_x2)) {
                 winFlag = 1;
                 isStart = false;
-                landerImage = mLanderImage;
+                landerImage = mLanderImage; // 이미지 변경
                 Log.println(Log.ASSERT, "doDraw!!", "win ");
             }
 
+            // bar가 아닌 다른 곳에 닿으면 실패
             else if ((y > mCanvasHeight - 235)) {
                 winFlag = 2;
                 isStart = false;
-                landerImage = mCrashedImage;
+                landerImage = mCrashedImage; // crash 이미지로 변경
                 Log.println(Log.ASSERT, "doDraw!!", "Game over");
             }
 
+            // canvas에 그려주기
             tempImage.draw(canvas);
         }
 	}

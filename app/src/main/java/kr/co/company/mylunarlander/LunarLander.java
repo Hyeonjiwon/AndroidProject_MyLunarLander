@@ -2,8 +2,10 @@ package kr.co.company.mylunarlander;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -24,19 +26,21 @@ public class LunarLander extends AppCompatActivity {
 
     /** A handle to the View in which the game is running. */
     private LunarView mLunarView;
-    public Drawable landerImage, mLanderImage, mCrashedImage, mFireImage;
-    public int x, y;
 
     private ProgressBar mProgress;
-    private int mProgressStatus = 0;
     private int count = 0;
-    private int endFlag, flag;
+    private int endFlag;
     private TextView text, game_status;
 
+    private static MediaPlayer bgm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        bgm = MediaPlayer.create(this, R.raw.music);
+        bgm.setLooping(true);
+        bgm.start();
 
         // tell system to use the layout defined in our XML file
         setContentView(R.layout.activity_lunarlander);
@@ -44,6 +48,7 @@ public class LunarLander extends AppCompatActivity {
         // get handles to the LunarView from XML, and its LunarThread
         mLunarView = (LunarView) findViewById(R.id.lunar);
         mLunarThread = mLunarView.getThread();
+
 
         // 프로그래스
         mProgress = (ProgressBar) findViewById(R.id.progressBar);
@@ -188,5 +193,44 @@ public class LunarLander extends AppCompatActivity {
         // just have the View's thread save its state into our Bundle
         super.onSaveInstanceState(outState);
         mLunarThread.saveState(outState);
+    }
+
+
+    @Override
+    protected void onUserLeaveHint() {
+        bgm.pause();
+        super.onUserLeaveHint();
+    }
+
+    @Override
+    protected void onResume() {
+        bgm.start();
+        super.onResume();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        bgm.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp)
+            {
+                mp.stop();
+                mp.release();
+            }
+        });
+    }
+
+    @Override
+    public void onBackPressed() {
+        bgm.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp)
+            {
+                mp.stop();
+                mp.release();
+            }
+        });
+        super.onBackPressed();
     }
 }
